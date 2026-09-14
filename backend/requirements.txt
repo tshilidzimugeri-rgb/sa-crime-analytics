@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pandas
+geopandas
+pyogrio
+shapely
+pydantic-settings
+pymongo
