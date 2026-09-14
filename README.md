@@ -1,5 +1,13 @@
 # SA Crime Analytics
 
+**Live demo**: [crimeanalytic.netlify.app](https://crimeanalytic.netlify.app) — a static
+build from the [`netlify` branch](https://github.com/tshilidzimugeri-rgb/sa-crime-analytics/tree/netlify)
+(precomputed data, no backend to host). All pages/charts/filters work there;
+the choropleth map panels don't currently render in that production build —
+see the "Known limitation" note in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+`master` (this branch) is the full live FastAPI + MongoDB version described below,
+where the map works normally in `npm run dev`.
+
 A full-stack analytics app for exploring South African Police Service (SAPS) crime
 statistics by province, police station, crime category, and time (2020-2025).
 
