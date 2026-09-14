@@ -51,7 +51,7 @@ export default function ChoroplethMap({ geojson, valueByKey, keyProp, onSelect, 
     if (!containerRef.current || mapRef.current) return
     const map = new maplibregl.Map({
       container: containerRef.current,
-      style: 'https://demotiles.maplibre.org/style.json',
+      style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
       center: [24.99, -29.0],
       zoom: 4.4,
     })
@@ -78,7 +78,7 @@ export default function ChoroplethMap({ geojson, valueByKey, keyProp, onSelect, 
       })),
     }
 
-    const fillColorExpr = ['interpolate', ['linear'], ['get', '__value'], 0, '#dbeafe', max, '#1e3a8a']
+    const fillColorExpr = ['interpolate', ['linear'], ['get', '__value'], 0, '#16233a', max, '#4f8dff']
 
     function applyData() {
       const src = map.getSource('choropleth') as maplibregl.GeoJSONSource | undefined
@@ -110,7 +110,7 @@ export default function ChoroplethMap({ geojson, valueByKey, keyProp, onSelect, 
         id: 'choropleth-outline',
         type: 'line',
         source: 'choropleth',
-        paint: { 'line-color': '#1e293b', 'line-width': 1 },
+        paint: { 'line-color': '#4f8dff', 'line-width': 0.6, 'line-opacity': 0.5 },
       })
       map.on('click', 'choropleth-fill', (e: maplibregl.MapLayerMouseEvent) => {
         const feat = e.features?.[0]
