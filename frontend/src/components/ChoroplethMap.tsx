@@ -1,7 +1,19 @@
 import * as maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+// maplibre-gl ships a separate prebuilt worker file and resolves it relative
+// to its own module URL at runtime. That works when the library's files are
+// served as-is, but Rollup inlines the whole package into our main chunk in
+// production, so the self-referencing URL 404s there (confirmed: the request
+// silently fell through to our SPA catch-all and got index.html back,
+// content-type text/html, which the worker can't execute -- map fetched
+// style/tiles fine but never rendered anything). Importing the worker file
+// with Vite's `?url` suffix emits it as its own proper asset in both dev and
+// prod, and setWorkerUrl() points the library at that real path instead.
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url'
 import { useEffect, useRef } from 'react'
 import type { GeoFeatureCollection } from '../api/client'
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl)
 
 interface Props {
   geojson: GeoFeatureCollection
@@ -57,6 +69,7 @@ export default function ChoroplethMap({ geojson, valueByKey, keyProp, onSelect, 
     })
     map.addControl(new maplibregl.NavigationControl(), 'top-right')
     mapRef.current = map
+    map.on('error', (e) => console.error('MAPLIBRE ERROR', e.error?.message ?? e))
     return () => {
       map.remove()
       mapRef.current = null

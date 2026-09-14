@@ -91,6 +91,34 @@ defeated index-only scans (forced a document FETCH even when every other field
 was covered) — replaced with a plain `year` range in the query plus exact
 month-level trimming done in Python after the aggregation groups by month.
 
+## Known limitation: choropleth map doesn't render in production builds
+
+The map works correctly in `npm run dev`, but in a real production build
+(`npm run build` + `vite preview`, and the same on the deployed Netlify site)
+the choropleth panels render as an empty dark rectangle with no country
+shapes or colors.
+
+Diagnosed, not guessed: every network request succeeds (style.json, sprite,
+tiles.json, and the worker script all return 200), and `map.getContainer()`
+reports the correct size -- but `map.isStyleLoaded()` stays `false`
+indefinitely and no `error` event ever fires. This points to MapLibre GL's
+main-thread/worker "actor" message-passing protocol breaking silently once
+its code is bundled into the production chunk graph alongside the rest of
+the app, rather than any problem with our map setup, the CARTO style, or the
+data. `src/components/ChoroplethMap.tsx` already works around one real,
+confirmed instance of this class of bug (the worker's own script 404ing
+under Rollup, fixed via the `?url` import + `setWorkerUrl()`), but a second,
+deeper instance of the same underlying issue remains unresolved. Forcing
+`maplibre-gl` into its own Rollup chunk (`manualChunks`) was tried and did
+not fix it either.
+
+Everything else in the app (all pages, all filters, all charts, all data) is
+unaffected and confirmed correct in production builds -- this is isolated to
+the map's tile rendering specifically. If revisiting this, worthwhile next
+steps: try `maplibre-gl`'s CSP-safe worker build variant, or an older
+`maplibre-gl` major version, to narrow down whether this is a regression in
+6.x specifically.
+
 ## Folder guide
 
 | Path | Purpose |
