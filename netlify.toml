@@ -1,7 +1,10 @@
 [build]
   base = "frontend"
   command = "npm run build"
-  publish = "frontend/dist"
+  # Relative to `base`, not repo root -- "frontend/dist" here would resolve
+  # to frontend/frontend/dist and fail with "Deploy directory does not exist"
+  # (confirmed against an actual failed Netlify build).
+  publish = "dist"
 
 # React Router uses client-side routing (BrowserRouter) -- any path that
 # isn't a real static file must fall back to index.html so deep links like
