@@ -1,7 +1,7 @@
 import { useQueries } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { useProvinces, useCategories, type TrendsResponse } from '../api/client'
+import { useProvinces, useCategories, fetchTrends } from '../api/client'
 
 const COLORS = ['#2563eb', '#dc2626', '#16a34a', '#d97706', '#7c3aed', '#0891b2', '#db2777', '#65a30d', '#78716c']
 
@@ -16,10 +16,7 @@ export default function CategoryTrends() {
   const queries = useQueries({
     queries: (provinces ?? []).map((p) => ({
       queryKey: ['trends', { province: p.prov_code, category: code, group_by: 'year' }],
-      queryFn: async () => {
-        const res = await fetch(`/api/stats/trends?province=${p.prov_code}&category=${encodeURIComponent(code ?? '')}&group_by=year`)
-        return (await res.json()) as TrendsResponse
-      },
+      queryFn: () => fetchTrends({ province: p.prov_code, category: code, group_by: 'year' }),
       enabled: !!code,
     })),
   })
@@ -49,10 +46,10 @@ export default function CategoryTrends() {
         <ResponsiveContainer width="100%" height={420}>
           <LineChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="var(--chart-grid)" />
-            <XAxis dataKey="period" tick={{ fontSize: 11 }} />
-            <YAxis tick={{ fontSize: 11 }} width={50} />
-            <Tooltip />
-            <Legend />
+            <XAxis dataKey="period" tick={{ fontSize: 11, fill: '#7b8496' }} stroke="var(--chart-grid)" />
+            <YAxis tick={{ fontSize: 11, fill: '#7b8496' }} width={50} stroke="var(--chart-grid)" />
+            <Tooltip contentStyle={{ background: '#131a2b', border: '1px solid #2f3b52', borderRadius: 8, color: '#e7ecf5' }} />
+            <Legend wrapperStyle={{ fontSize: 12, color: '#8b95a8' }} />
             {provinces?.map((p, i) => (
               <Line key={p.prov_code} type="monotone" dataKey={p.prov_code} stroke={COLORS[i % COLORS.length]} strokeWidth={2} dot={false} isAnimationActive={false} />
             ))}

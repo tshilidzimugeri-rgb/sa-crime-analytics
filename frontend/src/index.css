@@ -1,24 +1,25 @@
 :root {
-  --bg: #f8fafc;
-  --panel-bg: #ffffff;
-  --text: #0f172a;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --accent: #2563eb;
-  --chart-grid: #e2e8f0;
-  color-scheme: light;
+  --bg: #05070d;
+  --bg-2: #0a0e1a;
+  --panel-bg: #0f1420;
+  --panel-bg-hover: #131a2b;
+  --text: #e7ecf5;
+  --text-muted: #8b95a8;
+  --border: #1e2636;
+  --border-hover: #2f3b52;
+  --accent: #4f8dff;
+  --accent-2: #8b5cf6;
+  --good: #22c55e;
+  --bad: #f87171;
+  --chart-grid: #1c2333;
+  --chart-tick: #7b8496;
+  color-scheme: dark;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0b1220;
-    --panel-bg: #131c2e;
-    --text: #e2e8f0;
-    --text-muted: #94a3b8;
-    --border: #253044;
-    --accent: #60a5fa;
-    --chart-grid: #253044;
-    color-scheme: dark;
+@media (prefers-reduced-motion: no-preference) {
+  .animated-bg::before,
+  .animated-bg::after {
+    animation-play-state: running;
   }
 }
 
@@ -34,9 +35,68 @@ body {
 }
 
 .app-shell {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  isolation: isolate;
+}
+
+/* Slow-drifting radial glows behind the whole app -- subtle, not distracting */
+.animated-bg::before,
+.animated-bg::after {
+  content: '';
+  position: fixed;
+  inset: -20%;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  animation: drift 26s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+
+.animated-bg::before {
+  background-image: radial-gradient(38% 32% at 18% 12%, rgba(79, 141, 255, 0.16), transparent 70%),
+    radial-gradient(30% 26% at 82% 18%, rgba(139, 92, 246, 0.14), transparent 70%);
+}
+
+.animated-bg::after {
+  background-image: radial-gradient(32% 28% at 75% 85%, rgba(34, 197, 94, 0.09), transparent 70%),
+    radial-gradient(26% 24% at 15% 80%, rgba(79, 141, 255, 0.1), transparent 70%);
+  animation-duration: 32s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2%, 3%, 0) scale(1.06);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-bg::before,
+  .animated-bg::after {
+    animation: none;
+  }
+  .panel,
+  .kpi-tile,
+  .filter-bar {
+    animation: none !important;
+  }
 }
 
 .app-header {
@@ -45,12 +105,22 @@ body {
   justify-content: space-between;
   padding: 0.9rem 1.5rem;
   border-bottom: 1px solid var(--border);
-  background: var(--panel-bg);
+  background: rgba(15, 20, 32, 0.7);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .brand {
   font-weight: 700;
   font-size: 1.1rem;
+  background: linear-gradient(90deg, #fff, var(--accent) 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .app-header nav {
@@ -64,6 +134,11 @@ body {
   font-size: 0.9rem;
   padding: 0.3rem 0;
   border-bottom: 2px solid transparent;
+  transition: color 0.15s ease;
+}
+
+.app-header nav a:hover {
+  color: var(--text);
 }
 
 .app-header nav a.active {
@@ -93,6 +168,7 @@ body {
 
 .page h1 {
   margin-bottom: 0.2rem;
+  letter-spacing: -0.01em;
 }
 
 .subtitle {
@@ -116,15 +192,20 @@ body {
   font-size: 0.9rem;
 }
 
+.back-link:hover {
+  text-decoration: underline;
+}
+
 .filter-bar {
   display: flex;
   gap: 1.2rem;
   flex-wrap: wrap;
   background: var(--panel-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 0.9rem 1.2rem;
   margin-bottom: 1.2rem;
+  animation: rise-in 0.4s ease both;
 }
 
 .filter-bar label {
@@ -133,16 +214,25 @@ body {
   font-size: 0.75rem;
   color: var(--text-muted);
   gap: 0.3rem;
+  flex: 1 1 160px;
 }
 
 .filter-bar select {
-  padding: 0.4rem 0.6rem;
+  padding: 0.45rem 0.6rem;
   border-radius: 6px;
   border: 1px solid var(--border);
-  background: var(--bg);
+  background: var(--bg-2);
   color: var(--text);
-  min-width: 180px;
+  min-width: 0;
+  width: 100%;
   font-size: 0.85rem;
+  transition: border-color 0.15s ease;
+}
+
+.filter-bar select:hover,
+.filter-bar select:focus {
+  border-color: var(--accent);
+  outline: none;
 }
 
 .kpi-row {
@@ -155,8 +245,15 @@ body {
 .kpi-tile {
   background: var(--panel-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 1rem 1.2rem;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+  animation: rise-in 0.4s ease both;
+}
+
+.kpi-tile:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
 }
 
 .kpi-label {
@@ -166,8 +263,9 @@ body {
 }
 
 .kpi-value {
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
 .kpi-delta {
@@ -176,19 +274,20 @@ body {
 }
 
 .kpi-delta.good {
-  color: #16a34a;
+  color: var(--good);
 }
 
 .kpi-delta.bad {
-  color: #dc2626;
+  color: var(--bad);
 }
 
 .panel {
   background: var(--panel-bg);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 1.2rem;
   margin-bottom: 1.2rem;
+  animation: rise-in 0.45s ease both;
 }
 
 .panel h2 {
@@ -208,6 +307,28 @@ body {
   }
 }
 
+@media (max-width: 640px) {
+  .app-body {
+    padding: 1rem;
+  }
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+  .kpi-value {
+    font-size: 1.4rem;
+  }
+  .filter-bar {
+    padding: 0.8rem;
+  }
+  .filter-bar label {
+    flex: 1 1 100%;
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -218,6 +339,7 @@ body {
 .data-table td {
   padding: 0.5rem 0.6rem;
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .data-table th {
@@ -225,4 +347,12 @@ body {
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
+}
+
+.data-table tbody tr {
+  transition: background 0.12s ease;
+}
+
+.data-table tbody tr:hover {
+  background: var(--panel-bg-hover);
 }

@@ -8,7 +8,7 @@ import StationDetail from './pages/StationDetail'
 
 export default function App() {
   return (
-    <div className="app-shell">
+    <div className="app-shell animated-bg">
       <header className="app-header">
         <div className="brand">SA Crime Analytics</div>
         <nav>
